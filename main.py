@@ -7,7 +7,12 @@ from flask import Flask, request, render_template_string, redirect, url_for, ses
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from huggingface_hub import HfApi, ModelCard
-from duckduckgo_search import DDGS
+
+# Updated DuckDuckGo Import (Handles the package rename gracefully)
+try:
+    from ddgs import DDGS
+except ImportError:
+    from duckduckgo_search import DDGS
 
 # --- CLI Setup & Banner ---
 def show_banner():
@@ -113,10 +118,13 @@ def perform_security_audit(repo_id, token, provider, eval_model, notes_qty):
         
         org_name = repo_id.split('/')[0] if '/' in repo_id else repo_id
         ddg_results = ""
+        
+        # FIXED: Using the new context manager structure for ddgs
         try:
-            results = DDGS().text(f"{org_name} AI organization trust security vulnerabilities", max_results=3)
-            for r in results:
-                ddg_results += f"- {r['title']}: {r['body']}\n"
+            with DDGS() as ddgs:
+                results = ddgs.text(f"{org_name} AI organization trust security vulnerabilities", max_results=3)
+                for r in results:
+                    ddg_results += f"- {r['title']}: {r['body']}\n"
         except Exception as e:
             ddg_results = f"Search failed: {e}"
 
