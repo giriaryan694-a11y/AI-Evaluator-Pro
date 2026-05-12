@@ -2,7 +2,7 @@ Flask
 Flask-Limiter
 pyfiglet
 huggingface_hub
-duckduckgo-search
+ddgs
 openai
 google-generativeai
 requests
